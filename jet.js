@@ -5,7 +5,7 @@ function drawJet(ctx, jet, keys) {
     ctx.translate(jet.x, jet.y);
     ctx.rotate(jet.angle);
 
-    // ================= WINGS (UNDER BODY) =================
+    // ================= WINGS =================
     ctx.fillStyle = "#b8bec8";
 
     ctx.beginPath();
@@ -44,11 +44,6 @@ function drawJet(ctx, jet, keys) {
     ctx.ellipse(12, 0, 7, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // ================= NOSE CANNON =================
-    ctx.fillStyle = "#333";
-    ctx.fillRect(30, 4, 6, 2);
-    ctx.fillRect(30, -6, 6, 2);
-
     // ================= ENGINE =================
     ctx.fillStyle = "#222";
     ctx.fillRect(-44, -2, 4, 4);
@@ -57,13 +52,11 @@ function drawJet(ctx, jet, keys) {
 
         const flicker = 4 + Math.random() * 2;
 
-        // outer glow
         ctx.fillStyle = "rgba(255,160,0,0.25)";
         ctx.beginPath();
         ctx.arc(-48, 0, flicker * 2, 0, Math.PI * 2);
         ctx.fill();
 
-        // inner neon glow
         ctx.fillStyle = "rgba(255,255,0,0.6)";
         ctx.beginPath();
         ctx.arc(-48, 0, flicker, 0, Math.PI * 2);
