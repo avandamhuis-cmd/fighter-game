@@ -5,9 +5,10 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 const keys = {};
-const mouse = { x: 0, y: 0 };
-
 const particles = [];
+
+let screenShake = 0;
+window.screenShake = 0;
 
 document.addEventListener("keydown", (e) => {
     keys[e.key.toLowerCase()] = true;
@@ -15,11 +16,6 @@ document.addEventListener("keydown", (e) => {
 
 document.addEventListener("keyup", (e) => {
     keys[e.key.toLowerCase()] = false;
-});
-
-canvas.addEventListener("mousemove", (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
 });
 
 const jet = {
@@ -57,14 +53,12 @@ function update() {
 
         for (let i = 0; i < 3; i++) {
 
-            const spread = (Math.random() - 0.5) * 2;
-
             particles.push({
-                x: baseX + Math.sin(jet.angle) * spread,
-                y: baseY - Math.cos(jet.angle) * spread,
-                vx: -Math.cos(jet.angle) * (1.5 + Math.random()),
-                vy: -Math.sin(jet.angle) * (1.5 + Math.random()),
-                size: 2 + Math.random() * 2,
+                x: baseX,
+                y: baseY,
+                vx: -Math.cos(jet.angle) * 2,
+                vy: -Math.sin(jet.angle) * 2,
+                size: 2,
                 life: 0.7,
                 type: "afterburner"
             });
@@ -96,47 +90,55 @@ function update() {
         if (p.life <= 0) particles.splice(i, 1);
     }
 
-    if (jet.x < -50) jet.x = canvas.width + 50;
-    if (jet.x > canvas.width + 50) jet.x = -50;
-    if (jet.y < -50) jet.y = canvas.height + 50;
-    if (jet.y > canvas.height + 50) jet.y = -50;
+    if (window.updateEnemies) updateEnemies();
+    if (window.updateWeapons) updateWeapons(jet, keys, particles);
 
-    updateWeapons(jet, keys);
+    // SCREEN SHAKE DECAY
+    window.screenShake *= 0.9;
 }
 
 function drawParticles() {
 
     for (const p of particles) {
 
-        if (p.type === "afterburner") {
+        if (p.type === "explosion") {
 
             ctx.fillStyle = `rgba(255, ${120 + Math.random()*120}, 0, ${p.life})`;
-
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "rgba(255,200,0,1)";
-
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "orange";
             ctx.fillRect(p.x, p.y, p.size, p.size);
-
             ctx.shadowBlur = 0;
 
-        } else {
+        } else if (p.type === "afterburner") {
 
-            ctx.fillStyle = `rgba(255,140,0,${p.life})`;
+            ctx.fillStyle = `rgba(255, ${120 + Math.random()*120}, 0, ${p.life})`;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "yellow";
             ctx.fillRect(p.x, p.y, p.size, p.size);
+            ctx.shadowBlur = 0;
         }
     }
 }
 
 function draw() {
 
+    const shakeX = (Math.random() - 0.5) * window.screenShake;
+    const shakeY = (Math.random() - 0.5) * window.screenShake;
+
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+
     ctx.fillStyle = "#4da6ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     drawParticles();
 
+    if (window.drawEnemies) drawEnemies(ctx);
     if (window.drawWeapons) drawWeapons(ctx);
 
     drawJet(ctx, jet, keys);
+
+    ctx.restore();
 }
 
 function gameLoop() {
@@ -146,8 +148,3 @@ function gameLoop() {
 }
 
 gameLoop();
-
-window.addEventListener("resize", () => {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-});
