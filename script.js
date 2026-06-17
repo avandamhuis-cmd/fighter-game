@@ -28,14 +28,13 @@ const jet = {
     vx: 0,
     vy: 0,
     angle: 0,
-    thrust: 0.22,
+    thrust: 0.16,     // slower acceleration
     drag: 0.993,
-    maxSpeed: 15
+    maxSpeed: 10      // slower top speed
 };
 
 function update() {
 
-    // ===== SMOOTH MOUSE TURNING (INERTIA) =====
     const targetAngle = Math.atan2(
         mouse.y - jet.y,
         mouse.x - jet.x
@@ -48,13 +47,11 @@ function update() {
 
     jet.angle += diff * 0.08;
 
-    // ===== THRUST =====
     if (keys["w"]) {
 
         jet.vx += Math.cos(jet.angle) * jet.thrust;
         jet.vy += Math.sin(jet.angle) * jet.thrust;
 
-        // engine particles (subtle)
         for (let i = 0; i < 2; i++) {
             particles.push({
                 x: jet.x - Math.cos(jet.angle) * 40,
@@ -67,21 +64,19 @@ function update() {
         }
     }
 
-    // ===== SPEED LIMIT =====
     const speed = Math.hypot(jet.vx, jet.vy);
+
     if (speed > jet.maxSpeed) {
         jet.vx *= jet.maxSpeed / speed;
         jet.vy *= jet.maxSpeed / speed;
     }
 
-    // ===== MOVE =====
     jet.x += jet.vx;
     jet.y += jet.vy;
 
     jet.vx *= jet.drag;
     jet.vy *= jet.drag;
 
-    // ===== PARTICLES =====
     for (let i = particles.length - 1; i >= 0; i--) {
 
         const p = particles[i];
@@ -91,18 +86,14 @@ function update() {
 
         p.life -= 0.04;
 
-        if (p.life <= 0) {
-            particles.splice(i, 1);
-        }
+        if (p.life <= 0) particles.splice(i, 1);
     }
 
-    // ===== SCREEN WRAP =====
     if (jet.x < -50) jet.x = canvas.width + 50;
     if (jet.x > canvas.width + 50) jet.x = -50;
     if (jet.y < -50) jet.y = canvas.height + 50;
     if (jet.y > canvas.height + 50) jet.y = -50;
 
-    // ===== WEAPONS UPDATE =====
     if (window.updateWeapons) {
         updateWeapons(jet, keys);
     }
@@ -111,32 +102,22 @@ function update() {
 function drawParticles() {
 
     for (const p of particles) {
-
         ctx.fillStyle = `rgba(255,140,0,${p.life})`;
-
-        ctx.fillRect(
-            p.x,
-            p.y,
-            p.size,
-            p.size
-        );
+        ctx.fillRect(p.x, p.y, p.size, p.size);
     }
 }
 
 function draw() {
 
-    // sky
     ctx.fillStyle = "#4da6ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     drawParticles();
 
-    // weapons layer
     if (window.drawWeapons) {
         drawWeapons(ctx);
     }
 
-    // jet layer
     drawJet(ctx, jet, keys);
 }
 
