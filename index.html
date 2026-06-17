@@ -5,38 +5,14 @@
     <title>2D Fighter Jet Game</title>
 
     <link rel="stylesheet" href="style.css">
-
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background: black;
-        }
-
-        #debug {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            color: white;
-            font-size: 24px;
-            font-family: Arial, sans-serif;
-            z-index: 1000;
-        }
-    </style>
 </head>
 <body>
 
-    <div id="debug">
-        VERSION TEST
-    </div>
+<canvas id="game"></canvas>
 
-    <canvas id="game"></canvas>
-
-    <script>
-        alert("INDEX.HTML LOADED");
-    </script>
-
-    <script src="script.js"></script>
+<script src="jet.js"></script>
+<script src="weapons.js"></script>
+<script src="script.js"></script>
 
 </body>
 </html>
