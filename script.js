@@ -10,6 +10,7 @@ const mouse = { x: 0, y: 0 };
 
 let mode = "menu";
 let screenShake = 0;
+window.screenShake = 0;
 
 const jet = {
     x: canvas.width / 2,
@@ -31,6 +32,7 @@ canvas.addEventListener("mousemove", e => {
 });
 
 window.startGame = function(type) {
+
     mode = type;
     document.getElementById("menu").style.display = "none";
 
@@ -42,6 +44,7 @@ window.startGame = function(type) {
         spawnEnemy(false);
     }
 };
+
 function update() {
 
     const targetAngle = Math.atan2(
@@ -57,7 +60,6 @@ function update() {
     jet.angle += diff * 0.08;
 
     if (keys["w"]) {
-
         jet.vx += Math.cos(jet.angle) * jet.thrust;
         jet.vy += Math.sin(jet.angle) * jet.thrust;
     }
@@ -81,10 +83,33 @@ function update() {
     screenShake *= 0.85;
 }
 
+function drawParticles() {
+
+    for (const p of particles) {
+
+        if (p.type === "explosion") {
+
+            ctx.fillStyle = `rgba(255, ${120 + Math.random()*120}, 0, ${p.life})`;
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "orange";
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+            ctx.shadowBlur = 0;
+
+        } else {
+
+            ctx.fillStyle = `rgba(255, ${120 + Math.random()*120}, 0, ${p.life})`;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "yellow";
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+            ctx.shadowBlur = 0;
+        }
+    }
+}
+
 function draw() {
 
-    const shakeX = (Math.random() - 0.5) * screenShake;
-    const shakeY = (Math.random() - 0.5) * screenShake;
+    const shakeX = (Math.random() - 0.5) * window.screenShake;
+    const shakeY = (Math.random() - 0.5) * window.screenShake;
 
     ctx.save();
     ctx.translate(shakeX, shakeY);
@@ -92,7 +117,7 @@ function draw() {
     ctx.fillStyle = "#4da6ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    drawParticles(ctx);
+    drawParticles();
 
     if (window.drawEnemies) drawEnemies(ctx);
     if (window.drawWeapons) drawWeapons(ctx);
