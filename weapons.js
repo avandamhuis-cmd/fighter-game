@@ -1,16 +1,15 @@
-window.bullets = window.bullets || [];
+const bullets = [];
+let fireCooldown = 0;
 
-window.fireCooldown = 0;
+function updateWeapons(jet, keys) {
 
-window.updateWeapons = function (jet, keys) {
-
-    window.fireCooldown--;
+    fireCooldown--;
 
     if (keys[" "]) {
 
-        if (window.fireCooldown <= 0) {
+        if (fireCooldown <= 0) {
 
-            window.bullets.push({
+            bullets.push({
                 x: jet.x + Math.cos(jet.angle) * 26,
                 y: jet.y + Math.sin(jet.angle) * 26,
                 vx: Math.cos(jet.angle) * 16,
@@ -18,40 +17,52 @@ window.updateWeapons = function (jet, keys) {
                 life: 50
             });
 
-            window.fireCooldown = 5;
+            fireCooldown = 9; // slower fire rate
         }
     }
 
-    for (let i = window.bullets.length - 1; i >= 0; i--) {
+    for (let i = bullets.length - 1; i >= 0; i--) {
 
-        const b = window.bullets[i];
+        const b = bullets[i];
 
         b.x += b.vx;
         b.y += b.vy;
 
         b.life--;
 
-        if (b.life <= 0) {
-            window.bullets.splice(i, 1);
-        }
+        if (b.life <= 0) bullets.splice(i, 1);
     }
-};
+}
 
-window.drawWeapons = function (ctx) {
+function drawWeapons(ctx) {
 
-    for (const b of window.bullets) {
+    for (const b of bullets) {
 
-        ctx.shadowBlur = 12;
-        ctx.shadowColor = "yellow";
+        const tailX = b.x - b.vx * 0.6;
+        const tailY = b.y - b.vy * 0.6;
 
-        ctx.strokeStyle = "rgba(255,255,0,1)";
-        ctx.lineWidth = 1.5;
+        // glow trail
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = "rgba(255,255,0,0.9)";
+
+        ctx.strokeStyle = "rgba(255,255,0,0.2)";
+        ctx.lineWidth = 3;
 
         ctx.beginPath();
-        ctx.moveTo(b.x, b.y);
-        ctx.lineTo(b.x - b.vx * 0.2, b.y - b.vy * 0.2);
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+
+        // bright core tracer
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = "rgba(255,255,140,1)";
+        ctx.lineWidth = 1;
+
+        ctx.beginPath();
+        ctx.moveTo(tailX, tailY);
+        ctx.lineTo(b.x, b.y);
         ctx.stroke();
 
         ctx.shadowBlur = 0;
     }
-};
+}
