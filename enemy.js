@@ -22,9 +22,9 @@ function updateEnemies() {
     for (const e of enemies) {
 
         if (e.dead) {
-            e.fallSpeed += 0.15;
+            e.fallSpeed += 0.12;
             e.y += e.fallSpeed;
-            e.rotation += 0.05;
+            e.rotation += 0.04;
             continue;
         }
 
@@ -41,7 +41,7 @@ function drawEnemies(ctx) {
         ctx.rotate(e.rotation);
 
         // BODY
-        ctx.fillStyle = e.dead ? "black" : "#c7ccd4";
+        ctx.fillStyle = e.dead ? "#111" : "#c7ccd4";
 
         ctx.beginPath();
         ctx.moveTo(35, 0);
@@ -54,7 +54,7 @@ function drawEnemies(ctx) {
         ctx.fill();
 
         // WINGS
-        ctx.fillStyle = e.dead ? "#111" : "#b8bec8";
+        ctx.fillStyle = e.dead ? "#000" : "#b8bec8";
 
         ctx.beginPath();
         ctx.moveTo(10, -3);
@@ -72,8 +72,8 @@ function drawEnemies(ctx) {
         ctx.closePath();
         ctx.fill();
 
-        // RED COCKPIT
-        ctx.fillStyle = e.dead ? "#111" : "#ff3b3b";
+        // COCKPIT (RED)
+        ctx.fillStyle = e.dead ? "#000" : "#ff3b3b";
 
         ctx.beginPath();
         ctx.ellipse(10, 0, 6, 3, 0, 0, Math.PI * 2);
@@ -81,12 +81,10 @@ function drawEnemies(ctx) {
 
         ctx.restore();
 
-        // HIT FLASH OUTLINE
+        // HIT FLASH (WORLD SPACE)
         if (!e.dead && e.hitFlash > 0) {
-
-            ctx.strokeStyle = "rgba(255,0,0,0.6)";
+            ctx.strokeStyle = "rgba(255,0,0,0.7)";
             ctx.lineWidth = 2;
-
             ctx.strokeRect(e.x - 45, e.y - 20, 90, 40);
         }
     }
