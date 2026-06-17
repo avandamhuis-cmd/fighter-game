@@ -12,15 +12,15 @@ const mouse = {
 
 const particles = [];
 
-document.addEventListener("keydown", e => {
+document.addEventListener("keydown", (e) => {
     keys[e.key.toLowerCase()] = true;
 });
 
-document.addEventListener("keyup", e => {
+document.addEventListener("keyup", (e) => {
     keys[e.key.toLowerCase()] = false;
 });
 
-canvas.addEventListener("mousemove", e => {
+canvas.addEventListener("mousemove", (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
 });
@@ -28,19 +28,17 @@ canvas.addEventListener("mousemove", e => {
 const jet = {
     x: canvas.width / 2,
     y: canvas.height / 2,
-
     vx: 0,
     vy: 0,
-
     angle: 0,
-
-    thrust: 0.18,
-    drag: 0.992,
-    maxSpeed: 12
+    thrust: 0.25,
+    drag: 0.993,
+    maxSpeed: 15
 };
 
 function update() {
 
+    // Smooth turning inertia
     const targetAngle = Math.atan2(
         mouse.y - jet.y,
         mouse.x - jet.x
@@ -51,28 +49,36 @@ function update() {
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
 
-    jet.angle += diff * 0.05;
+    jet.angle += diff * 0.08;
 
+    // Thrust
     if (keys["w"]) {
 
         jet.vx += Math.cos(jet.angle) * jet.thrust;
         jet.vy += Math.sin(jet.angle) * jet.thrust;
 
-        particles.push({
-            x: jet.x - Math.cos(jet.angle) * 50,
-            y: jet.y - Math.sin(jet.angle) * 50,
+        // Exhaust particles
+        for (let i = 0; i < 4; i++) {
 
-            vx: -Math.cos(jet.angle) * 5 +
-                (Math.random() - 0.5) * 2,
+            particles.push({
+                x: jet.x - Math.cos(jet.angle) * 70,
+                y: jet.y - Math.sin(jet.angle) * 70,
 
-            vy: -Math.sin(jet.angle) * 5 +
-                (Math.random() - 0.5) * 2,
+                vx:
+                    -Math.cos(jet.angle) * (5 + Math.random() * 3) +
+                    (Math.random() - 0.5) * 2,
 
-            size: 8 + Math.random() * 8,
-            life: 1
-        });
+                vy:
+                    -Math.sin(jet.angle) * (5 + Math.random() * 3) +
+                    (Math.random() - 0.5) * 2,
+
+                size: 12 + Math.random() * 12,
+                life: 1
+            });
+        }
     }
 
+    // Speed limit
     const speed = Math.hypot(jet.vx, jet.vy);
 
     if (speed > jet.maxSpeed) {
@@ -80,12 +86,15 @@ function update() {
         jet.vy *= jet.maxSpeed / speed;
     }
 
+    // Move
     jet.x += jet.vx;
     jet.y += jet.vy;
 
+    // Drift
     jet.vx *= jet.drag;
     jet.vy *= jet.drag;
 
+    // Update particles
     for (let i = particles.length - 1; i >= 0; i--) {
 
         const p = particles[i];
@@ -93,30 +102,33 @@ function update() {
         p.x += p.vx;
         p.y += p.vy;
 
-        p.life -= 0.03;
-        p.size *= 0.98;
+        p.life -= 0.02;
+        p.size *= 0.985;
 
         if (p.life <= 0) {
             particles.splice(i, 1);
         }
     }
 
-    if (jet.x < 0) jet.x = canvas.width;
-    if (jet.x > canvas.width) jet.x = 0;
-    if (jet.y < 0) jet.y = canvas.height;
-    if (jet.y > canvas.height) jet.y = 0;
+    // Screen wrap
+    if (jet.x < -100) jet.x = canvas.width + 100;
+    if (jet.x > canvas.width + 100) jet.x = -100;
+
+    if (jet.y < -100) jet.y = canvas.height + 100;
+    if (jet.y > canvas.height + 100) jet.y = -100;
 }
 
 function drawParticles() {
 
     for (const p of particles) {
 
-        const color =
-            Math.random() > 0.5
-                ? `rgba(255,220,50,${p.life})`
-                : `rgba(255,120,0,${p.life})`;
+        const alpha = p.life;
 
-        ctx.fillStyle = color;
+        if (Math.random() > 0.5) {
+            ctx.fillStyle = `rgba(255,220,0,${alpha})`;
+        } else {
+            ctx.fillStyle = `rgba(255,120,0,${alpha})`;
+        }
 
         ctx.fillRect(
             p.x - p.size / 2,
@@ -134,38 +146,57 @@ function drawJet() {
     ctx.translate(jet.x, jet.y);
     ctx.rotate(jet.angle);
 
-    ctx.fillStyle = "#bfc4cc";
+    // BIGGER jet
+    ctx.scale(2.2, 2.2);
+
+    // Main body
+    ctx.fillStyle = "#c9ced6";
 
     ctx.beginPath();
 
-    ctx.moveTo(50, 0);
-    ctx.lineTo(20, -7);
-    ctx.lineTo(5, -10);
-    ctx.lineTo(-5, -28);
-    ctx.lineTo(-28, -18);
-    ctx.lineTo(-45, -8);
-    ctx.lineTo(-55, 0);
-    ctx.lineTo(-45, 8);
-    ctx.lineTo(-28, 18);
-    ctx.lineTo(-5, 28);
-    ctx.lineTo(5, 10);
-    ctx.lineTo(20, 7);
+    ctx.moveTo(55, 0);     // nose
+    ctx.lineTo(20, -8);
+
+    ctx.lineTo(0, -10);
+
+    ctx.lineTo(-10, -30);  // wing
+
+    ctx.lineTo(-35, -20);
+
+    ctx.lineTo(-50, -8);
+
+    ctx.lineTo(-60, 0);    // engine
+
+    ctx.lineTo(-50, 8);
+
+    ctx.lineTo(-35, 20);
+
+    ctx.lineTo(-10, 30);
+
+    ctx.lineTo(0, 10);
+
+    ctx.lineTo(20, 8);
 
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = "#9da4ad";
+    // Tail fin
+    ctx.fillStyle = "#9da5ae";
 
     ctx.beginPath();
-    ctx.moveTo(-30, -3);
-    ctx.lineTo(-18, -20);
+
+    ctx.moveTo(-35, -5);
+    ctx.lineTo(-18, -24);
     ctx.lineTo(-10, -5);
+
     ctx.closePath();
     ctx.fill();
 
-    ctx.fillStyle = "#7fd7ff";
+    // Cockpit
+    ctx.fillStyle = "#6fd9ff";
 
     ctx.beginPath();
+
     ctx.ellipse(
         18,
         0,
@@ -175,28 +206,32 @@ function drawJet() {
         0,
         Math.PI * 2
     );
+
     ctx.fill();
 
+    // Engine glow
     if (keys["w"]) {
 
         ctx.fillStyle =
-            `rgba(255,180,0,${0.5 + Math.random() * 0.3})`;
+            `rgba(255,180,0,${0.5 + Math.random() * 0.4})`;
 
         ctx.beginPath();
+
         ctx.arc(
-            -50,
+            -58,
             0,
-            8 + Math.random() * 3,
+            7 + Math.random() * 4,
             0,
             Math.PI * 2
         );
+
         ctx.fill();
     }
 
     ctx.restore();
 }
 
-function drawVelocityIndicator() {
+function drawVelocityLine() {
 
     ctx.strokeStyle = "white";
     ctx.lineWidth = 2;
@@ -206,8 +241,8 @@ function drawVelocityIndicator() {
     ctx.moveTo(jet.x, jet.y);
 
     ctx.lineTo(
-        jet.x + jet.vx * 10,
-        jet.y + jet.vy * 10
+        jet.x + jet.vx * 12,
+        jet.y + jet.vy * 12
     );
 
     ctx.stroke();
@@ -215,11 +250,25 @@ function drawVelocityIndicator() {
 
 function draw() {
 
+    // Sky
     ctx.fillStyle = "#4da6ff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+    // Simple clouds
+    ctx.fillStyle = "rgba(255,255,255,0.25)";
+
+    for (let i = 0; i < 15; i++) {
+
+        ctx.fillRect(
+            (i * 220) % canvas.width,
+            (i * 140) % canvas.height,
+            120,
+            25
+        );
+    }
+
     drawParticles();
-    drawVelocityIndicator();
+    drawVelocityLine();
     drawJet();
 }
 
