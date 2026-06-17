@@ -28,9 +28,9 @@ const jet = {
     vx: 0,
     vy: 0,
     angle: 0,
-    thrust: 0.16,     // slower acceleration
+    thrust: 0.16,
     drag: 0.993,
-    maxSpeed: 10      // slower top speed
+    maxSpeed: 10
 };
 
 function update() {
@@ -52,14 +52,21 @@ function update() {
         jet.vx += Math.cos(jet.angle) * jet.thrust;
         jet.vy += Math.sin(jet.angle) * jet.thrust;
 
-        for (let i = 0; i < 2; i++) {
+        const baseX = jet.x - Math.cos(jet.angle) * 46;
+        const baseY = jet.y - Math.sin(jet.angle) * 46;
+
+        for (let i = 0; i < 3; i++) {
+
+            const spread = (Math.random() - 0.5) * 2;
+
             particles.push({
-                x: jet.x - Math.cos(jet.angle) * 40,
-                y: jet.y - Math.sin(jet.angle) * 40,
-                vx: -Math.cos(jet.angle) * 4,
-                vy: -Math.sin(jet.angle) * 4,
-                size: 3,
-                life: 1
+                x: baseX + Math.sin(jet.angle) * spread,
+                y: baseY - Math.cos(jet.angle) * spread,
+                vx: -Math.cos(jet.angle) * (1.5 + Math.random()),
+                vy: -Math.sin(jet.angle) * (1.5 + Math.random()),
+                size: 2 + Math.random() * 2,
+                life: 0.7,
+                type: "afterburner"
             });
         }
     }
@@ -94,16 +101,29 @@ function update() {
     if (jet.y < -50) jet.y = canvas.height + 50;
     if (jet.y > canvas.height + 50) jet.y = -50;
 
-    if (window.updateWeapons) {
-        updateWeapons(jet, keys);
-    }
+    updateWeapons(jet, keys);
 }
 
 function drawParticles() {
 
     for (const p of particles) {
-        ctx.fillStyle = `rgba(255,140,0,${p.life})`;
-        ctx.fillRect(p.x, p.y, p.size, p.size);
+
+        if (p.type === "afterburner") {
+
+            ctx.fillStyle = `rgba(255, ${120 + Math.random()*120}, 0, ${p.life})`;
+
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "rgba(255,200,0,1)";
+
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+
+            ctx.shadowBlur = 0;
+
+        } else {
+
+            ctx.fillStyle = `rgba(255,140,0,${p.life})`;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+        }
     }
 }
 
@@ -114,9 +134,7 @@ function draw() {
 
     drawParticles();
 
-    if (window.drawWeapons) {
-        drawWeapons(ctx);
-    }
+    if (window.drawWeapons) drawWeapons(ctx);
 
     drawJet(ctx, jet, keys);
 }
