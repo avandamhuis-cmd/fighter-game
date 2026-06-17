@@ -14,7 +14,7 @@ function updateWeapons(jet, keys, particles) {
                 y: jet.y + Math.sin(jet.angle) * 26,
                 vx: Math.cos(jet.angle) * 16,
                 vy: Math.sin(jet.angle) * 16,
-                life: 50
+                life: 60
             });
 
             fireCooldown = 9;
@@ -27,10 +27,14 @@ function updateWeapons(jet, keys, particles) {
 
         b.x += b.vx;
         b.y += b.vy;
-
         b.life--;
 
-        // COLLISION WITH ENEMY
+        if (b.life <= 0) {
+            bullets.splice(i, 1);
+            continue;
+        }
+
+        // collision
         for (const e of enemies) {
 
             if (e.dead) continue;
@@ -47,11 +51,12 @@ function updateWeapons(jet, keys, particles) {
 
                 bullets.splice(i, 1);
 
-                if (e.hp <= 0) {
+                if (e.hp <= 0 && !e.dead) {
 
                     e.dead = true;
 
-                    for (let j = 0; j < 40; j++) {
+                    // EXPLOSION SAFE
+                    for (let j = 0; j < 35; j++) {
 
                         particles.push({
                             x: e.x,
@@ -63,13 +68,14 @@ function updateWeapons(jet, keys, particles) {
                             type: "explosion"
                         });
                     }
+
+                    // SCREEN SHAKE TRIGGER
+                    window.screenShake = 20;
                 }
 
                 break;
             }
         }
-
-        if (b.life <= 0) bullets.splice(i, 1);
     }
 }
 
