@@ -1,7 +1,7 @@
 const bullets = [];
 let fireCooldown = 0;
 
-function updateWeapons(jet, keys) {
+function updateWeapons(jet, keys, particles) {
 
     fireCooldown--;
 
@@ -17,7 +17,7 @@ function updateWeapons(jet, keys) {
                 life: 50
             });
 
-            fireCooldown = 9; // slower fire rate
+            fireCooldown = 9;
         }
     }
 
@@ -30,6 +30,45 @@ function updateWeapons(jet, keys) {
 
         b.life--;
 
+        // COLLISION WITH ENEMY
+        for (const e of enemies) {
+
+            if (e.dead) continue;
+
+            const dx = b.x - e.x;
+            const dy = b.y - e.y;
+
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 30) {
+
+                e.hp--;
+                e.hitFlash = 10;
+
+                bullets.splice(i, 1);
+
+                if (e.hp <= 0) {
+
+                    e.dead = true;
+
+                    for (let j = 0; j < 40; j++) {
+
+                        particles.push({
+                            x: e.x,
+                            y: e.y,
+                            vx: (Math.random() - 0.5) * 6,
+                            vy: (Math.random() - 0.5) * 6,
+                            size: 2 + Math.random() * 3,
+                            life: 1,
+                            type: "explosion"
+                        });
+                    }
+                }
+
+                break;
+            }
+        }
+
         if (b.life <= 0) bullets.splice(i, 1);
     }
 }
@@ -41,7 +80,6 @@ function drawWeapons(ctx) {
         const tailX = b.x - b.vx * 0.6;
         const tailY = b.y - b.vy * 0.6;
 
-        // glow trail
         ctx.shadowBlur = 18;
         ctx.shadowColor = "rgba(255,255,0,0.9)";
 
@@ -53,7 +91,6 @@ function drawWeapons(ctx) {
         ctx.lineTo(b.x, b.y);
         ctx.stroke();
 
-        // bright core tracer
         ctx.shadowBlur = 8;
         ctx.strokeStyle = "rgba(255,255,140,1)";
         ctx.lineWidth = 1;
