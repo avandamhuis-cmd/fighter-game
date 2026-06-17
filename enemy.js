@@ -4,12 +4,9 @@ function spawnEnemy() {
     enemies.push({
         x: window.innerWidth / 2,
         y: window.innerHeight / 2,
-        vx: 0,
-        vy: 0,
-        angle: 0,
         hp: 10,
-        hitFlash: 0,
         dead: false,
+        hitFlash: 0,
         fallSpeed: 0,
         rotation: 0
     });
@@ -18,7 +15,6 @@ function spawnEnemy() {
 spawnEnemy();
 
 function updateEnemies() {
-
     for (const e of enemies) {
 
         if (e.dead) {
@@ -72,8 +68,8 @@ function drawEnemies(ctx) {
         ctx.closePath();
         ctx.fill();
 
-        // COCKPIT (RED)
-        ctx.fillStyle = e.dead ? "#000" : "#ff3b3b";
+        // COCKPIT
+        ctx.fillStyle = e.dead ? "#111" : "#ff3b3b";
 
         ctx.beginPath();
         ctx.ellipse(10, 0, 6, 3, 0, 0, Math.PI * 2);
@@ -81,9 +77,9 @@ function drawEnemies(ctx) {
 
         ctx.restore();
 
-        // HIT FLASH (WORLD SPACE)
+        // HIT FLASH
         if (!e.dead && e.hitFlash > 0) {
-            ctx.strokeStyle = "rgba(255,0,0,0.7)";
+            ctx.strokeStyle = "rgba(255,0,0,0.6)";
             ctx.lineWidth = 2;
             ctx.strokeRect(e.x - 45, e.y - 20, 90, 40);
         }
