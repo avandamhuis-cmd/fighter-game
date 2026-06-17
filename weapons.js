@@ -9,17 +9,20 @@ function updateWeapons(jet, keys) {
 
         if (fireCooldown <= 0) {
 
+            // SINGLE INVISIBLE CANNON UNDER NOSE
+            const offset = 26;
+
             bullets.push({
-                x: jet.x + Math.cos(jet.angle) * 28 - Math.sin(jet.angle) * 4,
-                y: jet.y + Math.sin(jet.angle) * 28 + Math.cos(jet.angle) * 4,
+                x: jet.x + Math.cos(jet.angle) * offset - Math.sin(jet.angle) * 2,
+                y: jet.y + Math.sin(jet.angle) * offset + Math.cos(jet.angle) * 2,
 
-                vx: Math.cos(jet.angle) * 14,
-                vy: Math.sin(jet.angle) * 14,
+                vx: Math.cos(jet.angle) * 16,
+                vy: Math.sin(jet.angle) * 16,
 
-                life: 60
+                life: 50
             });
 
-            fireCooldown = 6;
+            fireCooldown = 5;
         }
     }
 
@@ -38,17 +41,23 @@ function updateWeapons(jet, keys) {
 
 function drawWeapons(ctx) {
 
-    ctx.strokeStyle = "white";
-    ctx.lineWidth = 1;
-
     for (const b of bullets) {
+
+        // NEON YELLOW GLOW EFFECT
+        ctx.strokeStyle = "rgba(255,255,0,1)";
+        ctx.lineWidth = 1.5;
+
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "rgba(255,255,0,1)";
 
         ctx.beginPath();
         ctx.moveTo(b.x, b.y);
         ctx.lineTo(
-            b.x - b.vx * 0.2,
-            b.y - b.vy * 0.2
+            b.x - b.vx * 0.25,
+            b.y - b.vy * 0.25
         );
         ctx.stroke();
+
+        ctx.shadowBlur = 0;
     }
 }
