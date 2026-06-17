@@ -28,16 +28,16 @@ function drawJet(ctx, jet, keys) {
     ctx.fillStyle = "#c7ccd4";
 
     ctx.beginPath();
-    ctx.moveTo(38, 0);
-    ctx.lineTo(16, -5);
+    ctx.moveTo(40, 0);      // nose
+    ctx.lineTo(18, -5);
     ctx.lineTo(-22, -5);
     ctx.lineTo(-42, 0);
     ctx.lineTo(-22, 5);
-    ctx.lineTo(16, 5);
+    ctx.lineTo(18, 5);
     ctx.closePath();
     ctx.fill();
 
-    // ================= TAIL =================
+    // ================= TAIL STABILIZERS =================
     ctx.fillStyle = "#adb5c0";
 
     ctx.beginPath();
@@ -61,19 +61,24 @@ function drawJet(ctx, jet, keys) {
     ctx.ellipse(12, 0, 7, 3.5, 0, 0, Math.PI * 2);
     ctx.fill();
 
-    // ================= NOSE CANNON =================
-    ctx.fillStyle = "#333";
-    ctx.fillRect(30, 4, 6, 2);
-    ctx.fillRect(30, -6, 6, 2);
-
-    // ================= ENGINE =================
-    ctx.fillStyle = "#444";
+    // ================= ENGINE (NEON GLOW) =================
+    ctx.fillStyle = "#222";
     ctx.fillRect(-44, -2, 4, 4);
 
     if (keys["w"]) {
-        ctx.fillStyle = "rgba(255,180,0,0.5)";
+
+        const flicker = 6 + Math.random() * 3;
+
+        // outer glow (orange)
+        ctx.fillStyle = "rgba(255,160,0,0.25)";
         ctx.beginPath();
-        ctx.arc(-48, 0, 6 + Math.random() * 2, 0, Math.PI * 2);
+        ctx.arc(-48, 0, flicker * 2.2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // inner glow (neon yellow)
+        ctx.fillStyle = "rgba(255,255,0,0.7)";
+        ctx.beginPath();
+        ctx.arc(-48, 0, flicker, 0, Math.PI * 2);
         ctx.fill();
     }
 
