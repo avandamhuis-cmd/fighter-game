@@ -42,3 +42,70 @@ window.startGame = function(type) {
         spawnEnemy(false);
     }
 };
+function update() {
+
+    const targetAngle = Math.atan2(
+        mouse.y - jet.y,
+        mouse.x - jet.x
+    );
+
+    let diff = targetAngle - jet.angle;
+
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+
+    jet.angle += diff * 0.08;
+
+    if (keys["w"]) {
+
+        jet.vx += Math.cos(jet.angle) * jet.thrust;
+        jet.vy += Math.sin(jet.angle) * jet.thrust;
+    }
+
+    const speed = Math.hypot(jet.vx, jet.vy);
+
+    if (speed > jet.maxSpeed) {
+        jet.vx *= jet.maxSpeed / speed;
+        jet.vy *= jet.maxSpeed / speed;
+    }
+
+    jet.x += jet.vx;
+    jet.y += jet.vy;
+
+    jet.vx *= jet.drag;
+    jet.vy *= jet.drag;
+
+    if (window.updateEnemies) updateEnemies(jet, particles, mode);
+    if (window.updateWeapons) updateWeapons(jet, keys, particles);
+
+    screenShake *= 0.85;
+}
+
+function draw() {
+
+    const shakeX = (Math.random() - 0.5) * screenShake;
+    const shakeY = (Math.random() - 0.5) * screenShake;
+
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+
+    ctx.fillStyle = "#4da6ff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawParticles(ctx);
+
+    if (window.drawEnemies) drawEnemies(ctx);
+    if (window.drawWeapons) drawWeapons(ctx);
+
+    drawJet(ctx, jet, keys);
+
+    ctx.restore();
+}
+
+function loop() {
+    update();
+    draw();
+    requestAnimationFrame(loop);
+}
+
+loop();
