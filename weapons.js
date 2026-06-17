@@ -41,15 +41,13 @@ function updateWeapons(jet, keys, particles) {
             const dx = b.x - e.x;
             const dy = b.y - e.y;
 
-            const dist = Math.sqrt(dx * dx + dy * dy);
-
-            if (dist < 30) {
+            if (Math.hypot(dx, dy) < 30) {
 
                 e.hp--;
                 e.hitFlash = 10;
 
                 bullets.splice(i, 1);
-                i--; // ✅ FIX: prevents freeze/desync
+                i--;
 
                 if (e.hp <= 0 && !e.dead) {
 
