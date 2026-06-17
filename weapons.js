@@ -34,7 +34,6 @@ function updateWeapons(jet, keys, particles) {
             continue;
         }
 
-        // collision
         for (const e of enemies) {
 
             if (e.dead) continue;
@@ -50,12 +49,12 @@ function updateWeapons(jet, keys, particles) {
                 e.hitFlash = 10;
 
                 bullets.splice(i, 1);
+                i--; // ✅ FIX: prevents freeze/desync
 
                 if (e.hp <= 0 && !e.dead) {
 
                     e.dead = true;
 
-                    // EXPLOSION SAFE
                     for (let j = 0; j < 35; j++) {
 
                         particles.push({
@@ -69,7 +68,6 @@ function updateWeapons(jet, keys, particles) {
                         });
                     }
 
-                    // SCREEN SHAKE TRIGGER
                     window.screenShake = 20;
                 }
 
