@@ -31,14 +31,13 @@ const jet = {
     vx: 0,
     vy: 0,
     angle: 0,
-    thrust: 0.25,
+    thrust: 0.22,
     drag: 0.993,
     maxSpeed: 15
 };
 
 function update() {
 
-    // Smooth turning inertia
     const targetAngle = Math.atan2(
         mouse.y - jet.y,
         mouse.x - jet.x
@@ -49,36 +48,35 @@ function update() {
     while (diff > Math.PI) diff -= Math.PI * 2;
     while (diff < -Math.PI) diff += Math.PI * 2;
 
+    // turning inertia
     jet.angle += diff * 0.08;
 
-    // Thrust
     if (keys["w"]) {
 
         jet.vx += Math.cos(jet.angle) * jet.thrust;
         jet.vy += Math.sin(jet.angle) * jet.thrust;
 
-        // Exhaust particles
-        for (let i = 0; i < 4; i++) {
+        // exhaust particles
+        for (let i = 0; i < 2; i++) {
 
             particles.push({
-                x: jet.x - Math.cos(jet.angle) * 70,
-                y: jet.y - Math.sin(jet.angle) * 70,
+                x: jet.x - Math.cos(jet.angle) * 40,
+                y: jet.y - Math.sin(jet.angle) * 40,
 
                 vx:
-                    -Math.cos(jet.angle) * (5 + Math.random() * 3) +
-                    (Math.random() - 0.5) * 2,
+                    -Math.cos(jet.angle) * (4 + Math.random() * 2) +
+                    (Math.random() - 0.5) * 0.8,
 
                 vy:
-                    -Math.sin(jet.angle) * (5 + Math.random() * 3) +
-                    (Math.random() - 0.5) * 2,
+                    -Math.sin(jet.angle) * (4 + Math.random() * 2) +
+                    (Math.random() - 0.5) * 0.8,
 
-                size: 12 + Math.random() * 12,
+                size: 3 + Math.random() * 3,
                 life: 1
             });
         }
     }
 
-    // Speed limit
     const speed = Math.hypot(jet.vx, jet.vy);
 
     if (speed > jet.maxSpeed) {
@@ -86,15 +84,12 @@ function update() {
         jet.vy *= jet.maxSpeed / speed;
     }
 
-    // Move
     jet.x += jet.vx;
     jet.y += jet.vy;
 
-    // Drift
     jet.vx *= jet.drag;
     jet.vy *= jet.drag;
 
-    // Update particles
     for (let i = particles.length - 1; i >= 0; i--) {
 
         const p = particles[i];
@@ -102,32 +97,28 @@ function update() {
         p.x += p.vx;
         p.y += p.vy;
 
-        p.life -= 0.02;
-        p.size *= 0.985;
+        p.life -= 0.04;
 
         if (p.life <= 0) {
             particles.splice(i, 1);
         }
     }
 
-    // Screen wrap
-    if (jet.x < -100) jet.x = canvas.width + 100;
-    if (jet.x > canvas.width + 100) jet.x = -100;
+    if (jet.x < -50) jet.x = canvas.width + 50;
+    if (jet.x > canvas.width + 50) jet.x = -50;
 
-    if (jet.y < -100) jet.y = canvas.height + 100;
-    if (jet.y > canvas.height + 100) jet.y = -100;
+    if (jet.y < -50) jet.y = canvas.height + 50;
+    if (jet.y > canvas.height + 50) jet.y = -50;
 }
 
 function drawParticles() {
 
     for (const p of particles) {
 
-        const alpha = p.life;
-
         if (Math.random() > 0.5) {
-            ctx.fillStyle = `rgba(255,220,0,${alpha})`;
+            ctx.fillStyle = `rgba(255,220,0,${p.life})`;
         } else {
-            ctx.fillStyle = `rgba(255,120,0,${alpha})`;
+            ctx.fillStyle = `rgba(255,120,0,${p.life})`;
         }
 
         ctx.fillRect(
@@ -146,62 +137,95 @@ function drawJet() {
     ctx.translate(jet.x, jet.y);
     ctx.rotate(jet.angle);
 
-    // BIGGER jet
-    ctx.scale(2.2, 2.2);
+    // ---------- MAIN FUSELAGE ----------
 
-    // Main body
-    ctx.fillStyle = "#c9ced6";
+    ctx.fillStyle = "#c7ccd4";
 
     ctx.beginPath();
 
-    ctx.moveTo(55, 0);     // nose
-    ctx.lineTo(20, -8);
+    ctx.moveTo(38, 0);      // nose
 
-    ctx.lineTo(0, -10);
-
-    ctx.lineTo(-10, -30);  // wing
-
-    ctx.lineTo(-35, -20);
-
-    ctx.lineTo(-50, -8);
-
-    ctx.lineTo(-60, 0);    // engine
-
-    ctx.lineTo(-50, 8);
-
-    ctx.lineTo(-35, 20);
-
-    ctx.lineTo(-10, 30);
-
-    ctx.lineTo(0, 10);
-
-    ctx.lineTo(20, 8);
+    ctx.lineTo(16, -5);
+    ctx.lineTo(-22, -5);
+    ctx.lineTo(-36, -3);
+    ctx.lineTo(-42, 0);
+    ctx.lineTo(-36, 3);
+    ctx.lineTo(-22, 5);
+    ctx.lineTo(16, 5);
 
     ctx.closePath();
     ctx.fill();
 
-    // Tail fin
-    ctx.fillStyle = "#9da5ae";
+    // ---------- MAIN WINGS ----------
+
+    ctx.fillStyle = "#b8bec8";
 
     ctx.beginPath();
 
-    ctx.moveTo(-35, -5);
-    ctx.lineTo(-18, -24);
-    ctx.lineTo(-10, -5);
+    ctx.moveTo(6, -6);
+    ctx.lineTo(-8, -20);
+    ctx.lineTo(-28, -24);
+    ctx.lineTo(-12, -4);
 
     ctx.closePath();
     ctx.fill();
 
-    // Cockpit
+    ctx.beginPath();
+
+    ctx.moveTo(6, 6);
+    ctx.lineTo(-8, 20);
+    ctx.lineTo(-28, 24);
+    ctx.lineTo(-12, 4);
+
+    ctx.closePath();
+    ctx.fill();
+
+    // ---------- HORIZONTAL STABILIZERS ----------
+
+    ctx.fillStyle = "#adb5c0";
+
+    ctx.beginPath();
+
+    ctx.moveTo(-24, -5);
+    ctx.lineTo(-36, -13);
+    ctx.lineTo(-30, -4);
+
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+
+    ctx.moveTo(-24, 5);
+    ctx.lineTo(-36, 13);
+    ctx.lineTo(-30, 4);
+
+    ctx.closePath();
+    ctx.fill();
+
+    // ---------- VERTICAL STABILIZER ----------
+
+    ctx.fillStyle = "#969faa";
+
+    ctx.beginPath();
+
+    ctx.moveTo(-22, -2);
+    ctx.lineTo(-12, -18);
+    ctx.lineTo(-4, -2);
+
+    ctx.closePath();
+    ctx.fill();
+
+    // ---------- COCKPIT ----------
+
     ctx.fillStyle = "#6fd9ff";
 
     ctx.beginPath();
 
     ctx.ellipse(
-        18,
+        12,
         0,
-        10,
-        5,
+        7,
+        3.5,
         0,
         0,
         Math.PI * 2
@@ -209,23 +233,30 @@ function drawJet() {
 
     ctx.fill();
 
-    // Engine glow
+    // ---------- NOZZLE ----------
+
+    ctx.fillStyle = "#444";
+
+    ctx.fillRect(
+        -44,
+        -2,
+        4,
+        4
+    );
+
+    // ---------- AFTERBURNER ----------
+
     if (keys["w"]) {
 
         ctx.fillStyle =
-            `rgba(255,180,0,${0.5 + Math.random() * 0.4})`;
+            `rgba(255,180,0,${0.6 + Math.random() * 0.3})`;
 
-        ctx.beginPath();
-
-        ctx.arc(
-            -58,
-            0,
-            7 + Math.random() * 4,
-            0,
-            Math.PI * 2
+        ctx.fillRect(
+            -48,
+            -2,
+            5,
+            4
         );
-
-        ctx.fill();
     }
 
     ctx.restore();
@@ -233,7 +264,7 @@ function drawJet() {
 
 function drawVelocityLine() {
 
-    ctx.strokeStyle = "white";
+    ctx.strokeStyle = "rgba(255,255,255,0.4)";
     ctx.lineWidth = 2;
 
     ctx.beginPath();
@@ -241,8 +272,8 @@ function drawVelocityLine() {
     ctx.moveTo(jet.x, jet.y);
 
     ctx.lineTo(
-        jet.x + jet.vx * 12,
-        jet.y + jet.vy * 12
+        jet.x + jet.vx * 10,
+        jet.y + jet.vy * 10
     );
 
     ctx.stroke();
@@ -250,22 +281,13 @@ function drawVelocityLine() {
 
 function draw() {
 
-    // Sky
     ctx.fillStyle = "#4da6ff";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Simple clouds
-    ctx.fillStyle = "rgba(255,255,255,0.25)";
-
-    for (let i = 0; i < 15; i++) {
-
-        ctx.fillRect(
-            (i * 220) % canvas.width,
-            (i * 140) % canvas.height,
-            120,
-            25
-        );
-    }
+    ctx.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
 
     drawParticles();
     drawVelocityLine();
@@ -273,14 +295,17 @@ function draw() {
 }
 
 function gameLoop() {
+
     update();
     draw();
+
     requestAnimationFrame(gameLoop);
 }
 
 gameLoop();
 
 window.addEventListener("resize", () => {
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 });
